@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor S&P 500 - Tiempo Real</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Monitor S&P 500</h1>
+        
+        <div class="price-display">
+            <div class="price" id="currentPrice">Cargando...</div>
+            <div class="change" id="priceChange">---</div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Apertura</div>
+                <div class="info-value" id="openPrice">---</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Máximo</div>
+                <div class="info-value" id="highPrice">---</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Mínimo</div>
+                <div class="info-value" id="lowPrice">---</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Volumen</div>
+                <div class="info-value" id="volume">---</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Histórico - Últimos 30 días</h2>
+                <div class="data-status" id="dataStatus">
+                    <span class="status-indicator" id="statusIndicator">●</span>
+                    <span id="statusText">Cargando datos...</span>
+                </div>
+            </div>
+            <div class="chart-controls">
+                <button id="btn30d" class="chart-btn active">30 días</button>
+                <button id="btn7d" class="chart-btn">7 días</button>
+                <button id="btn1d" class="chart-btn">1 día</button>
+            </div>
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="last-update">
+            Última actualización: <span id="lastUpdate">---</span>
+        </div>
+
+        <div id="errorMessage"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
