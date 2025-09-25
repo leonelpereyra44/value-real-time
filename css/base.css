@@ -1,0 +1,48 @@
+/* Base Styles - Reset y configuraciones globales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px;
+    margin: 0;
+}
+
+/* Variables CSS para consistencia */
+:root {
+    --primary-color: #2196F3;
+    --success-color: #4CAF50;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --background-white: rgba(255, 255, 255, 0.95);
+    --shadow-light: 0 20px 40px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-radius: 20px;
+    --border-radius-small: 10px;
+    --border-radius-mobile: 15px;
+}
+
+/* Tipografía base */
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: -1px;
+}
+
+h2 {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: 400;
+}

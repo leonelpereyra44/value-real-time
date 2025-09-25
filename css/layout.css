@@ -1,0 +1,126 @@
+/* Layout y Container Styles */
+.container {
+    background: var(--background-white);
+    border-radius: var(--border-radius);
+    padding: 40px;
+    box-shadow: var(--shadow-light);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.container.updating {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+/* Price Display Section */
+.price-display {
+    background: linear-gradient(45deg, var(--primary-color), #21CBF3);
+    color: white;
+    padding: 30px;
+    border-radius: var(--border-radius-small);
+    margin: 20px 0;
+    box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
+}
+
+.price {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.change {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* Info Grid Layout */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin: 30px 0;
+    justify-content: space-around;
+}
+
+.info-item {
+    background: red;
+    padding: 25px 20px;
+    border-radius: 15px;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.info-item:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.info-label {
+    font-size: 0.9rem;
+    color: #000;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: help;
+    position: relative;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #000;
+    line-height: 1.2;
+}
+
+/* Chart Container */
+.chart-container {
+    margin: 30px 0;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.chart-container h2 {
+    color: #333;
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 400;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+    background: white;
+    border-radius: var(--border-radius-small);
+    padding: 20px;
+    box-shadow: var(--shadow-medium);
+}
+
+#priceChart {
+    max-width: 100%;
+    height: 100% !important;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}

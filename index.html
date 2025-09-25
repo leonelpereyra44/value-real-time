@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor S&P 500 - Tiempo Real</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -16,22 +16,28 @@
             <div class="change" id="priceChange">---</div>
         </div>
 
+                <!-- Información adicional -->
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">Apertura</div>
-                <div class="info-value" id="openPrice">---</div>
+                <div class="info-label" data-tooltip="Precio más alto alcanzado durante la sesión de trading del día">
+                    Máximo
+                    <span class="help-icon">?</span>
+                </div>
+                <div class="info-value" id="highPrice">$0.00</div>
             </div>
             <div class="info-item">
-                <div class="info-label">Máximo</div>
-                <div class="info-value" id="highPrice">---</div>
+                <div class="info-label" data-tooltip="Precio más bajo alcanzado durante la sesión de trading del día">
+                    Mínimo
+                    <span class="help-icon">?</span>
+                </div>
+                <div class="info-value" id="lowPrice">$0.00</div>
             </div>
             <div class="info-item">
-                <div class="info-label">Mínimo</div>
-                <div class="info-value" id="lowPrice">---</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Volumen</div>
-                <div class="info-value" id="volume">---</div>
+                <div class="info-label" data-tooltip="Número total de acciones negociadas durante la sesión del día">
+                    Volumen
+                    <span class="help-icon">?</span>
+                </div>
+                <div class="info-value" id="volume">0</div>
             </div>
         </div>
 

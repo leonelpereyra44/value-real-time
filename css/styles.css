@@ -1,0 +1,62 @@
+/* 
+ * Monitor S&P 500 - Estilos Modularizados
+ * Estructura CSS organizada en módulos para mejor mantenibilidad
+ */
+
+/* 1. Base - Reset, variables y tipografía fundamental */
+@import url('./base.css');
+
+/* 2. Layout - Estructura de containers y grids */
+@import url('./layout.css');
+
+/* 3. Components - Botones, estados y elementos interactivos */
+@import url('./components.css');
+
+/* 4. Responsive - Media queries y adaptabilidad */
+@import url('./responsive.css');
+
+/* 
+ * Optimizaciones específicas para Chart.js
+ * Mantener separado por ser dependiente de librería externa
+ */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Estilos del canvas del gráfico */
+#priceChart {
+    max-height: 400px;
+    background: white;
+    border-radius: 10px;
+}
+
+/* Animaciones globales */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        /* color: black; */
+    }
+    
+    .container {
+        box-shadow: none;
+        background: white;
+    }
+    
+    .chart-controls,
+    .error,
+    .success,
+    .warning {
+        display: none;
+    }
+}

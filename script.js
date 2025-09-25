@@ -24,16 +24,150 @@ class SP500Monitor {
         // Cargar datos históricos desde DB o API
         await this.loadHistoricalDataFromDB();
         
-        // Luego obtener el precio actual
-        setTimeout(() => {
-            this.updatePrice();
-        }, 2000);
+        // Cargar precio actual desde DB primero
+        await this.loadCurrentPriceFromDB();
         
-        // Configurar actualización automática solo para precio actual
-        setInterval(() => this.updatePrice(), this.updateInterval);
+        // Configurar actualización automática menos frecuente
+        // Solo actualizar si necesario (cada 30 minutos en lugar de 5)
+        this.setupCurrentPriceUpdates();
         
-        // Programar actualización de datos históricos (3 veces al día)
+        // Programar actualización de datos históricos (2 veces al día)
         this.scheduleHistoricalUpdates();
+    }
+
+    async setupCurrentPriceUpdates() {
+        // Verificar si necesitamos actualizar el precio actual
+        const shouldUpdate = await this.shouldUpdateCurrentPrice();
+        
+        if (shouldUpdate) {
+            console.log('Updating current price from API...');
+            await this.updateCurrentPriceFromAPI();
+        }
+        
+        // Programar actualizaciones del precio actual cada 30 minutos
+        setInterval(async () => {
+            const shouldUpdateNow = await this.shouldUpdateCurrentPrice();
+            if (shouldUpdateNow) {
+                console.log('Scheduled update: fetching new current price...');
+                await this.updateCurrentPriceFromAPI();
+            }
+        }, 30 * 60 * 1000); // 30 minutos
+    }
+
+    async shouldUpdateCurrentPrice() {
+        try {
+            const lastUpdate = await this.getLastCurrentPriceUpdateTime();
+            const now = new Date().getTime();
+            const thirtyMinutes = 30 * 60 * 1000;
+            
+            // Actualizar si han pasado más de 30 minutos desde la última actualización
+            return !lastUpdate || (now - lastUpdate) > thirtyMinutes;
+        } catch (error) {
+            console.log('Error checking last current price update time:', error);
+            return true; // Si hay error, mejor actualizar
+        }
+    }
+
+    async getLastCurrentPriceUpdateTime() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['metadata'], 'readonly');
+            const store = transaction.objectStore('metadata');
+            const request = store.get('lastCurrentPriceUpdate');
+            
+            request.onsuccess = () => {
+                resolve(request.result ? request.result.value : null);
+            };
+            
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
+
+    async setLastCurrentPriceUpdateTime(timestamp) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['metadata'], 'readwrite');
+            const store = transaction.objectStore('metadata');
+            const request = store.put({ key: 'lastCurrentPriceUpdate', value: timestamp });
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async loadCurrentPriceFromDB() {
+        try {
+            console.log('Loading current price from DB...');
+            
+            const priceData = await this.getCurrentPriceFromDB();
+            
+            if (priceData) {
+                this.displayCurrentPriceData(priceData);
+                console.log('Loaded current price from database');
+            } else {
+                console.log('No current price in DB, fetching from API...');
+                await this.updateCurrentPriceFromAPI();
+            }
+        } catch (error) {
+            console.error('Error loading current price from DB:', error);
+            await this.updateCurrentPriceFromAPI();
+        }
+    }
+
+    async getCurrentPriceFromDB() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['currentPrice'], 'readonly');
+            const store = transaction.objectStore('currentPrice');
+            const request = store.get('current');
+            
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+            
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
+
+    async saveCurrentPriceToDB(priceData) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['currentPrice'], 'readwrite');
+            const store = transaction.objectStore('currentPrice');
+            
+            const record = {
+                id: 'current',
+                timestamp: new Date().getTime(),
+                ...priceData
+            };
+            
+            const request = store.put(record);
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    displayCurrentPriceData(data) {
+        // Actualizar precio actual
+        document.getElementById('currentPrice').textContent = `$${data.price.toFixed(2)}`;
+
+        // Actualizar cambio
+        const changeElement = document.getElementById('priceChange');
+        const changeText = `${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)} (${data.changePercent >= 0 ? '+' : ''}${data.changePercent.toFixed(2)}%)`;
+        changeElement.textContent = changeText;
+        changeElement.className = `change ${data.change >= 0 ? 'positive' : 'negative'}`;
+
+        // Actualizar información adicional
+        document.getElementById('highPrice').textContent = `$${data.high.toFixed(2)}`;
+        document.getElementById('lowPrice').textContent = `$${data.low.toFixed(2)}`;
+        document.getElementById('volume').textContent = this.formatNumber(data.volume);
+
+        // Actualizar timestamp
+        document.getElementById('lastUpdate').textContent = new Date(data.timestamp).toLocaleTimeString('es-ES');
+        
+        // Limpiar errores
+        this.clearError();
     }
 
     async initDB() {
@@ -64,6 +198,12 @@ class SP500Monitor {
                 // Crear store para metadatos (última actualización, etc.)
                 if (!db.objectStoreNames.contains('metadata')) {
                     db.createObjectStore('metadata', { keyPath: 'key' });
+                }
+                
+                // Crear store para precio actual
+                if (!db.objectStoreNames.contains('currentPrice')) {
+                    const currentStore = db.createObjectStore('currentPrice', { keyPath: 'id' });
+                    currentStore.createIndex('timestamp', 'timestamp', { unique: false });
                 }
                 
                 console.log('Database schema created');
@@ -287,10 +427,12 @@ class SP500Monitor {
         }
     }
 
-    async updatePrice() {
+    async updateCurrentPriceFromAPI() {
         try {
             const container = document.querySelector('.container');
             container.classList.add('updating');
+
+            console.log('Fetching current price from API...');
 
             // Intentar obtener datos reales usando la misma API que funciona para el gráfico
             const success = await this.getCurrentPriceFromYahoo();
@@ -300,14 +442,17 @@ class SP500Monitor {
                 const alphaSuccess = await this.getCurrentPriceFromAlpha();
                 
                 if (!alphaSuccess) {
-                    // Como último recurso, simular datos
-                    this.simulateData();
+                    // Como último recurso, simular datos y guardar
+                    await this.simulateDataAndSave();
                 }
             }
+            
+            // Actualizar timestamp de última actualización
+            await this.setLastCurrentPriceUpdateTime(new Date().getTime());
+            
         } catch (error) {
             console.error('Error fetching current price:', error);
-            this.showError('Error al obtener datos actuales. Mostrando valores simulados.');
-            this.simulateData();
+            this.showError('Error al obtener datos actuales. Usando datos almacenados.');
         } finally {
             document.querySelector('.container').classList.remove('updating');
         }
@@ -339,7 +484,7 @@ class SP500Monitor {
                         }
 
                         if (data.chart && data.chart.result && data.chart.result[0]) {
-                            this.displayYahooCurrentPrice(data.chart.result[0]);
+                            await this.displayYahooCurrentPrice(data.chart.result[0]);
                             return true;
                         }
                     }
@@ -394,7 +539,6 @@ class SP500Monitor {
         changeElement.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
 
         // Actualizar información adicional
-        document.getElementById('openPrice').textContent = `$${open.toFixed(2)}`;
         document.getElementById('highPrice').textContent = `$${high.toFixed(2)}`;
         document.getElementById('lowPrice').textContent = `$${low.toFixed(2)}`;
         document.getElementById('volume').textContent = this.formatNumber(volume);
@@ -403,7 +547,7 @@ class SP500Monitor {
         document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES');
     }
 
-    displayYahooCurrentPrice(result) {
+    async displayYahooCurrentPrice(result) {
         try {
             const meta = result.meta;
             const currentPrice = meta.regularMarketPrice;
@@ -421,7 +565,6 @@ class SP500Monitor {
             changeElement.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
 
             // Actualizar información adicional usando los datos disponibles
-            document.getElementById('openPrice').textContent = `$${(meta.regularMarketOpen || currentPrice).toFixed(2)}`;
             document.getElementById('highPrice').textContent = `$${(meta.regularMarketDayHigh || currentPrice * 1.02).toFixed(2)}`;
             document.getElementById('lowPrice').textContent = `$${(meta.regularMarketDayLow || currentPrice * 0.98).toFixed(2)}`;
             
@@ -440,13 +583,25 @@ class SP500Monitor {
             
             document.getElementById('volume').textContent = this.formatNumber(totalVolume);
 
+            // Guardar en base de datos
+            const priceDataForDB = {
+                price: currentPrice,
+                change: change,
+                changePercent: changePercent,
+                high: meta.regularMarketDayHigh || currentPrice * 1.02,
+                low: meta.regularMarketDayLow || currentPrice * 0.98,
+                volume: totalVolume
+            };
+            
+            await this.saveCurrentPriceToDB(priceDataForDB);
+
             // Actualizar timestamp
             document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES');
             
             // Limpiar errores ya que obtuvimos datos reales
             this.clearError();
             
-            console.log('Successfully updated current price from Yahoo Finance:', currentPrice);
+            console.log('Successfully updated and saved current price from Yahoo Finance:', currentPrice);
         } catch (error) {
             console.error('Error processing Yahoo Finance current price:', error);
             return false;
@@ -484,6 +639,48 @@ class SP500Monitor {
         
         if (!document.getElementById('errorMessage').textContent) {
             this.showError('APIs temporalmente no disponibles. Mostrando datos estimados basados en el último precio conocido.');
+        }
+    }
+
+    async simulateDataAndSave() {
+        // Obtener el último precio del gráfico si está disponible para mantener consistencia
+        let basePrice = 450; // Precio base por defecto
+        
+        if (this.chart && this.chart.data.datasets[0].data.length > 0) {
+            const chartData = this.chart.data.datasets[0].data;
+            basePrice = chartData[chartData.length - 1]; // Usar el último precio del gráfico
+        } else {
+            basePrice = 450 + Math.random() * 100; // Precio base entre 450-550
+        }
+
+        // Generar variación pequeña para mantener realismo
+        const priceVariation = (Math.random() - 0.5) * 2; // Variación de ±1
+        const currentPrice = basePrice + priceVariation;
+        const change = (Math.random() - 0.5) * 5; // Cambio entre -2.5 y +2.5
+        const changePercent = (change / currentPrice) * 100;
+
+        const priceDataForDB = {
+            price: currentPrice,
+            change: change,
+            changePercent: changePercent,
+            high: currentPrice + Math.random() * 5,
+            low: currentPrice - Math.random() * 5,
+            volume: Math.floor(Math.random() * 50000000 + 10000000) // 10M-60M más realista para SPY
+        };
+
+        // Guardar en base de datos
+        try {
+            await this.saveCurrentPriceToDB(priceDataForDB);
+            console.log('Saved simulated current price to database');
+        } catch (error) {
+            console.error('Error saving simulated price to database:', error);
+        }
+
+        // Mostrar datos
+        this.displayCurrentPriceData(priceDataForDB);
+        
+        if (!document.getElementById('errorMessage').textContent) {
+            this.showError('APIs temporalmente no disponibles. Mostrando datos estimados guardados localmente.');
         }
     }
 
