@@ -12,8 +12,18 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
+    justify-content: flex-start;
+    padding: 10px;
+    margin: 0;
+}
+
+/* Estilos específicos para móviles */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
 }
 
 .container {
@@ -24,6 +34,16 @@ body {
     text-align: center;
     max-width: 600px;
     width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+        border-radius: 15px;
+        margin: 0;
+        max-width: 100%;
+    }
 }
 
 h1 {
@@ -31,6 +51,13 @@ h1 {
     margin-bottom: 30px;
     font-size: 2.5rem;
     font-weight: 300;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
 }
 
 .price-display {
@@ -52,6 +79,22 @@ h1 {
 .change {
     font-size: 1.5rem;
     font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .price-display {
+        padding: 25px 15px;
+        margin: 15px 0;
+    }
+    
+    .price {
+        font-size: 2.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .change {
+        font-size: 1.2rem;
+    }
 }
 
 .positive {
@@ -88,6 +131,26 @@ h1 {
     font-weight: bold;
 }
 
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .info-item {
+        padding: 15px 12px;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+    }
+}
+
 .last-update {
     color: #888;
     font-size: 0.9rem;
@@ -105,6 +168,67 @@ h1 {
     padding: 15px;
     border-radius: 5px;
     margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+    .last-update {
+        font-size: 0.8rem;
+        margin-top: 15px;
+    }
+    
+    .error {
+        padding: 12px;
+        border-radius: 8px;
+        margin: 8px 0;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    body {
+        padding: 3px;
+    }
+    
+    .container {
+        padding: 15px 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .price {
+        font-size: 2.2rem !important;
+    }
+    
+    .change {
+        font-size: 1rem !important;
+    }
+    
+    .info-grid {
+        gap: 10px;
+    }
+    
+    .info-item {
+        padding: 12px 8px;
+    }
+    
+    .chart-container {
+        padding: 12px;
+    }
+    
+    .chart-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        min-width: 60px;
+    }
+    
+    #priceChart {
+        max-height: 250px;
+    }
 }
 
 @keyframes pulse {
@@ -140,6 +264,25 @@ h1 {
     margin: 0;
 }
 
+@media (max-width: 768px) {
+    .chart-container {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .chart-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .chart-container h2 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+}
+
 .data-status {
     display: flex;
     align-items: center;
@@ -162,6 +305,19 @@ h1 {
 
 .status-indicator.error {
     color: #f44336;
+}
+
+@media (max-width: 768px) {
+    .data-status {
+        font-size: 0.8rem;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+    }
+    
+    .status-indicator {
+        font-size: 1rem;
+    }
 }
 
 .chart-controls {
@@ -191,8 +347,29 @@ h1 {
     color: white;
 }
 
+@media (max-width: 768px) {
+    .chart-controls {
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .chart-btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        border-radius: 25px;
+        min-width: 70px;
+    }
+}
+
 #priceChart {
     max-height: 400px;
     background: white;
     border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    #priceChart {
+        max-height: 280px;
+        border-radius: 8px;
+    }
 }
